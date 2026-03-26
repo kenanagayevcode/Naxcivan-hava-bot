@@ -127,7 +127,6 @@ REGIONS: Dict[str, Dict[str, List[str]]] = {
     }
 }
 
-# fallback koordinatlar
 MANUAL_COORDS: Dict[str, Tuple[float, float]] = {
     "Naxçıvan (şəhər)": (39.2089, 45.4122),
     "Babək (şəhər)": (39.1500, 45.4489),
@@ -163,29 +162,29 @@ WEATHER_ICONS = {
 
 MOTIVATION_QUOTES = {
     "hot": [
-        "Bu gün isti olsa da, gücünü düzgün istifadə etsən gün sənin olacaq. Su iç, özünü qoru, ritmini itirmə.",
-        "İsti hava səni yavaşlatmasın. Sakit, planlı və rahat hərəkət et, günün məhsuldar keçsin.",
-        "Günəş güclüdür, amma sənin iradən daha güclü ola bilər. Özünü qoru və enerjini düzgün böl."
+        "Bu gün isti olsa da, ritmini qorusansa işlərin daha rahat gedəcək. Su iç, kölgədə dincəl və enerjini düzgün böl.",
+        "İsti hava səni ləngitmesin. Sakit, planlı və yormadan irəlilə.",
+        "Günəş güclü ola bilər, amma sənin iradən daha güclü ola bilər."
     ],
     "warm": [
-        "Bu hava hərəkət etmək, işlərini yoluna qoymaq və özünü yaxşı hiss etmək üçün gözəl fürsətdir.",
-        "Açıq hava ruhu da açır. Kiçik addımlar at, günün sonunda özündən razı qal.",
-        "Bu gün balanslı və rahat keçə bilər. Tələsmə, amma dayanmadan davam et."
+        "Bu hava hərəkət etmək və gününü məhsuldar keçirmək üçün yaxşı fürsətdir.",
+        "Açıq hava ruhu da açır. Kiçik addımlarla da böyük nəticə əldə etmək olar.",
+        "Rahat və balanslı bir gündür. Tempini qoru və davam et."
     ],
     "mild": [
-        "Rahat hava rahat düşüncə yaradır. Sakit və dəqiq addımlarla işlərini tamamla.",
-        "Bu gün nə çox ağır, nə də çox çətindir. Öz tempini qorusan hər şey yaxşı gedəcək.",
-        "Yumşaq hava kimi sən də bu günü sakit və uğurlu keçirə bilərsən."
+        "Rahat hava, rahat düşüncə. Bu günü sakit və dəqiq addımlarla idarə et.",
+        "Nə çox ağır, nə çox çətin — öz tempinlə yaxşı gedə biləcəyin gündür.",
+        "Bu gün sabit və sakit keçə bilər. Planını pozmadan davam et."
     ],
     "cool": [
-        "Bir az sərin hava bəzən insanı daha ayıq və fokuslu edir. Bu günü dəyərləndir.",
-        "Sərinlik varsa, ruhunu isti saxla. Kiçik uğurlar da böyük motivasiya yaradır.",
-        "Hava sərin ola bilər, amma niyyətin isti qalmalıdır."
+        "Bir az sərin hava bəzən fokus verməyə kömək edir. Günü dəyərləndir.",
+        "Sərinlik varsa, motivasiyan isti qalsın.",
+        "Kiçik uğurlar da böyük irəliləyişin başlanğıcı olur."
     ],
     "cold": [
-        "Soyuq günlərdə də iradə isti qalmalıdır. Özünü qoru və planından ayrılma.",
-        "Bu hava səbr və hazırlıq istəyir. Sakit qal, düzgün geyin və yoluna davam et.",
-        "Çöldə hava sərtdirsə, daxilindəki gücü daha yaxşı hiss et."
+        "Soyuq günlərdə də plan və iradə isti qalmalıdır.",
+        "Bu hava hazırlıq və diqqət istəyir. Özünü qoru və yoluna davam et.",
+        "Çöldə hava sərtdirsə, daxilindəki gücü daha aydın hiss et."
     ]
 }
 
@@ -222,32 +221,31 @@ def pick_icon(desc: str) -> str:
 def pick_motivation(temp: float) -> str:
     if temp >= 35:
         return random.choice(MOTIVATION_QUOTES["hot"])
-    elif temp >= 25:
+    if temp >= 25:
         return random.choice(MOTIVATION_QUOTES["warm"])
-    elif temp >= 15:
+    if temp >= 15:
         return random.choice(MOTIVATION_QUOTES["mild"])
-    elif temp >= 5:
+    if temp >= 5:
         return random.choice(MOTIVATION_QUOTES["cool"])
     return random.choice(MOTIVATION_QUOTES["cold"])
 
-def make_warning(desc: str, wind_speed: float, temp: float) -> str:
+def make_warning(desc: str, wind_speed: float, temp: Optional[float]) -> str:
     d = (desc or "").lower()
     warnings = []
 
     if "rain" in d or "drizzle" in d:
-        warnings.append("🌧 Yağış ehtimalı / yağış var. Çölə çıxırsansa çətir götürmək yaxşı olar.")
+        warnings.append("🌧 Yağış ehtimalı var. Çətir götürmək yaxşı olar.")
     if "snow" in d:
-        warnings.append("❄️ Qar şəraiti var. Yollarda ehtiyatlı ol, isti geyin.")
-    if wind_speed is not None and wind_speed >= 10:
-        warnings.append(f"🌬 Güclü külək müşahidə olunur ({wind_speed} m/s). Açıq sahədə ehtiyatlı ol.")
+        warnings.append("❄️ Qar şəraiti var. İsti geyin və yolda ehtiyatlı ol.")
+    if wind_speed >= 10:
+        warnings.append(f"🌬 Güclü külək var ({wind_speed} m/s). Açıq sahədə diqqətli ol.")
     if temp is not None and temp >= 35:
-        warnings.append("🔥 Temperatur yüksəkdir. Gün altında uzun müddət qalma və bol su iç.")
+        warnings.append("🔥 Temperatur yüksəkdir. Gün altında çox qalma və bol su iç.")
     if temp is not None and temp <= 0:
-        warnings.append("🧊 Temperatur çox aşağıdır. Sürüşkənlik və soyuqlama riskinə diqqət et.")
+        warnings.append("🧊 Temperatur çox aşağıdır. Soyuq və sürüşmə riskinə diqqət et.")
 
     if not warnings:
         return "✅ Hazırda xüsusi hava xəbərdarlığı görünmür."
-
     return "\n".join(warnings)
 
 # =========================
@@ -392,6 +390,17 @@ def sync_get_json(url: str, params: dict, timeout: int = 20):
 
 async def async_get_json(url: str, params: dict, timeout: int = 20):
     return await asyncio.to_thread(sync_get_json, url, params, timeout)
+
+async def delete_webhook_safely() -> None:
+    try:
+        await async_get_json(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook",
+            {"drop_pending_updates": "true"},
+            timeout=20
+        )
+        logger.info("Webhook deleted successfully for polling mode.")
+    except Exception as e:
+        logger.warning("Webhook delete skipped/failed: %s", e)
 
 async def geocode_place(place: str, region: Optional[str] = None) -> Optional[Tuple[float, float, str]]:
     place = norm(place)
@@ -544,15 +553,14 @@ def build_weather_text(place: str, region: str, current: dict, forecast: Optiona
     temp_max = main.get("temp_max")
     humidity = main.get("humidity")
     pressure = main.get("pressure")
-    wind_speed = wind.get("speed", 0)
+    wind_speed = float(wind.get("speed", 0) or 0)
     cloudiness = clouds.get("all")
     desc = str(weather_item.get("description", "Məlumat yoxdur")).lower()
     icon = pick_icon(desc)
 
     motivation = pick_motivation(float(temp)) if temp is not None else "Günün uğurlu keçsin."
-    warning = make_warning(desc, float(wind_speed or 0), float(temp) if temp is not None else None)
+    warning = make_warning(desc, wind_speed, float(temp) if temp is not None else None)
     forecast_text = summarize_forecast(forecast)
-
     top = "⏰ *Saat 09:00 gündəlik hava məlumatı*\n\n" if is_daily else ""
 
     return (
@@ -580,6 +588,7 @@ def build_regions_keyboard() -> InlineKeyboardMarkup:
     keyboard = []
     for region_name, data in REGIONS.items():
         for city in data["Şəhər"]:
+            pid = get_place_id(region_name, city)
             if pid:
                 keyboard.append([InlineKeyboardButton(f"🏙 {city}", callback_data=f"weather|{pid}")])
     keyboard.append([InlineKeyboardButton("⭐ Sevimli məkanım", callback_data="myfav")])
@@ -676,24 +685,22 @@ def run_health_server():
 # =========================
 # CORE
 # =========================
-async def send_weather(update: Update, context: ContextTypes.DEFAULT_TYPE, place_id: str, daily: bool = False, prefix: str = "") -> None:
+async def send_weather_message(message_target, context: ContextTypes.DEFAULT_TYPE, place_id: str, chat_id: Optional[int] = None, user=None, daily: bool = False, prefix: str = "") -> None:
     item = PLACE_MAP.get(place_id)
     if not item:
-        await update.effective_message.reply_text("❌ Məkan tapılmadı.")
+        await message_target.reply_text("❌ Məkan tapılmadı.")
         return
 
     place = item["place"]
     region = item["region"]
 
-    user = update.effective_user
-    chat = update.effective_chat
-    if user and chat:
-        upsert_user(chat.id, user.username or "", user.first_name or "", user.last_name or "")
-        update_user_place(chat.id, place_id)
+    if chat_id and user:
+        upsert_user(chat_id, user.username or "", user.first_name or "", user.last_name or "")
+        update_user_place(chat_id, place_id)
 
     geo = await geocode_place(place, region)
     if not geo:
-        await update.effective_message.reply_text(
+        await message_target.reply_text(
             f"❌ *{place}* üçün koordinat tapılmadı.\nRayon: *{region}*",
             parse_mode=ParseMode.MARKDOWN
         )
@@ -704,12 +711,12 @@ async def send_weather(update: Update, context: ContextTypes.DEFAULT_TYPE, place
     forecast = await fetch_forecast(lat, lon)
 
     if not current:
-        await update.effective_message.reply_text("⚠️ Hava məlumatı hazırda gətirilə bilmədi.")
+        await message_target.reply_text("⚠️ Hava məlumatı hazırda gətirilə bilmədi.")
         return
 
     text = prefix + build_weather_text(place, region, current, forecast, is_daily=daily)
 
-    await update.effective_message.reply_text(
+    await message_target.reply_text(
         text,
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=build_weather_actions(place_id)
@@ -752,6 +759,8 @@ async def daily_weather_job(context: ContextTypes.DEFAULT_TYPE) -> None:
 # COMMANDS
 # =========================
 async def post_init(app: Application) -> None:
+    await delete_webhook_safely()
+
     commands = [
         BotCommand("start", "Botu başlat"),
         BotCommand("menu", "Əsas menyu"),
@@ -773,9 +782,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "✨ *Salam, Naxçıvan Hava Botuna xoş gəlmisən!*\n\n"
         "Bu bot ilə:\n"
         "• şəhər, kənd və qəsəbə üzrə hava məlumatı ala bilərsən\n"
-        "• son seçdiyin və sevimli etdiyin məkanı yadda saxlaya bilərsən\n"
-        "• hər gün *09:00*-da avtomatik hava məlumatı ala bilərsən\n"
-        "• yağış, qar, güclü külək kimi hallarda xəbərdarlıq görə bilərsən\n\n"
+        "• sevimli məkanı yadda saxlaya bilərsən\n"
+        "• hər gün *09:00*-da avtomatik hava ala bilərsən\n"
+        "• yağış, qar və güclü külək xəbərdarlıqlarını görə bilərsən\n\n"
         "Aşağıdan şəhər seç."
     )
     await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=build_regions_keyboard())
@@ -787,9 +796,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     text = (
         "*İstifadə qaydası*\n\n"
         "1. Şəhər seç\n"
-        "2. İstəsən həmin rayonun kənd və qəsəbələrini aç\n"
+        "2. Həmin rayonun kənd/qəsəbələrinə bax\n"
         "3. `⭐ Sevimli et` ilə məkanı yadda saxla\n"
-        "4. `🔔 09:00 aktiv et` ilə hər gün avtomatik hava al\n\n"
+        "4. `🔔 09:00 aktiv et` ilə gündəlik bildiriş al\n\n"
         "*Komandalar*\n"
         "/start\n/menu\n/help\n/fav\n/dailyon\n/dailyoff"
     )
@@ -801,7 +810,14 @@ async def fav_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await update.message.reply_text("⭐ Hələ sevimli məkan seçilməyib.")
         return
 
-    await send_weather(update, context, str(row["favorite_place_id"]), prefix="⭐ *Sevimli məkan üzrə hava məlumatı*\n\n")
+    await send_weather_message(
+        update.message,
+        context,
+        str(row["favorite_place_id"]),
+        chat_id=update.effective_chat.id,
+        user=update.effective_user,
+        prefix="⭐ *Sevimli məkan üzrə hava məlumatı*\n\n"
+    )
 
 async def dailyon_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.effective_chat.id
@@ -858,7 +874,21 @@ async def text_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if not pid:
         await update.message.reply_text("❌ Məkan tanınmadı. Aşağıdan seç:", reply_markup=build_regions_keyboard())
         return
-    await send_weather(update, context, pid)
+
+    row = get_user(update.effective_chat.id)
+    if row and row["daily_enabled"] == 1 and row["favorite_place_id"]:
+        old_fav = str(row["favorite_place_id"])
+        if old_fav != pid:
+            remove_user_jobs(context.application, update.effective_chat.id)
+            disable_daily(update.effective_chat.id)
+
+    await send_weather_message(
+        update.message,
+        context,
+        pid,
+        chat_id=update.effective_chat.id,
+        user=update.effective_user
+    )
 
 # =========================
 # CALLBACKS
@@ -878,14 +908,19 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             await query.message.reply_text("⭐ Hələ sevimli məkan seçilməyib.")
             return
 
-        fake_update = Update(update.update_id, message=query.message)
-        await send_weather(fake_update, context, str(row["favorite_place_id"]), prefix="⭐ *Sevimli məkan üzrə hava məlumatı*\n\n")
+        await send_weather_message(
+            query.message,
+            context,
+            str(row["favorite_place_id"]),
+            chat_id=update.effective_chat.id,
+            user=update.effective_user,
+            prefix="⭐ *Sevimli məkan üzrə hava məlumatı*\n\n"
+        )
         return
 
     if data.startswith("weather|"):
         place_id = data.split("|", 1)[1]
 
-        # istifadəçi yeni məkan seçəndə əvvəlki gündəlik job bağlanır, yalnız lazım olsa sonra yenidən qurulur
         row = get_user(update.effective_chat.id)
         if row and row["daily_enabled"] == 1 and row["favorite_place_id"]:
             old_fav = str(row["favorite_place_id"])
@@ -893,8 +928,13 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 remove_user_jobs(context.application, update.effective_chat.id)
                 disable_daily(update.effective_chat.id)
 
-        fake_update = Update(update.update_id, message=query.message)
-        await send_weather(fake_update, context, place_id)
+        await send_weather_message(
+            query.message,
+            context,
+            place_id,
+            chat_id=update.effective_chat.id,
+            user=update.effective_user
+        )
 
         item = PLACE_MAP.get(place_id)
         if item and item["place"] in REGIONS[item["region"]]["Şəhər"]:
@@ -954,10 +994,19 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 # ERROR
 # =========================
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    err_text = str(context.error)
+
+    if "Conflict: terminated by other getUpdates request" in err_text:
+        logger.error("Bot conflict detected: another polling instance is running.")
+        return
+
     logger.exception("Unhandled exception: %s", context.error)
+
     try:
         if isinstance(update, Update) and update.effective_message:
-            await update.effective_message.reply_text("⚠️ Gözlənilməz xəta baş verdi. Zəhmət olmasa yenidən yoxla.")
+            await update.effective_message.reply_text(
+                "⚠️ Gözlənilməz xəta baş verdi. Zəhmət olmasa yenidən yoxla."
+            )
     except Exception:
         pass
 
@@ -994,7 +1043,17 @@ def main() -> None:
     app.add_error_handler(error_handler)
 
     logger.info("Bot started successfully.")
-    app.run_polling(drop_pending_updates=True)
+
+    try:
+        app.run_polling(
+            drop_pending_updates=True,
+            allowed_updates=Update.ALL_TYPES
+        )
+    except Exception as e:
+        if "Conflict: terminated by other getUpdates request" in str(e):
+            logger.error("Another bot instance is already running. Stop the duplicate instance.")
+            return
+        raise
 
 if __name__ == "__main__":
     main()
