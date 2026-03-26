@@ -1,3 +1,4 @@
+import time
 import os
 import sqlite3
 import logging
@@ -1042,18 +1043,24 @@ def main() -> None:
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_message))
     app.add_error_handler(error_handler)
 
-    logger.info("Bot started successfully.")
+    logger.info("Bot starting...")
 
-    try:
-        app.run_polling(
-            drop_pending_updates=True,
-            allowed_updates=Update.ALL_TYPES
-        )
-    except Exception as e:
-        if "Conflict: terminated by other getUpdates request" in str(e):
-            logger.error("Another bot instance is already running. Stop the duplicate instance.")
-            return
-        raise
+    # overlap qarşısını almaq üçün
+    time.sleep(3)
+
+    while True:
+        try:
+            app.run_polling(
+                drop_pending_updates=True,
+                close_loop=False
+            )
+        except Exception as e:
+            if "Conflict: terminated by other getUpdates request" in str(e):
+                logger.warning("Conflict detected. Restarting in 5 seconds...")
+                time.sleep(5)
+                continue
+            else:
+                raise
 
 if __name__ == "__main__":
     main()
