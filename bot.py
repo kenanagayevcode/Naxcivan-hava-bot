@@ -1045,22 +1045,12 @@ def main() -> None:
 
     logger.info("Bot starting...")
 
-    # overlap qarşısını almaq üçün
-    time.sleep(3)
+    time.sleep(2)
 
-    while True:
-        try:
-            app.run_polling(
-                drop_pending_updates=True,
-                close_loop=False
-            )
-        except Exception as e:
-            if "Conflict: terminated by other getUpdates request" in str(e):
-                logger.warning("Conflict detected. Restarting in 5 seconds...")
-                time.sleep(5)
-                continue
-            else:
-                raise
+    app.run_polling(
+        drop_pending_updates=True,
+        close_loop=False
+    )
 
 if __name__ == "__main__":
     main()
